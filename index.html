@@ -1038,6 +1038,7 @@
 
                     status.onclick = (e) => {
                         e.stopPropagation();
+                        console.log('Status clicked:', task.status);
 
                         // Удаляю старый dropdown если есть
                         const oldDropdown = document.querySelector('.status-dropdown');
@@ -1047,18 +1048,21 @@
                         const dropdown = document.createElement('div');
                         dropdown.className = 'status-dropdown';
                         dropdown.style.cssText = `
-                            position: absolute;
-                            top: 100%;
-                            left: 0;
+                            position: fixed;
                             background: white;
-                            border: 1px solid #ddd;
+                            border: 2px solid #3498db;
                             border-radius: 4px;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                            z-index: 1000;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+                            z-index: 10000;
                             min-width: 180px;
                             max-height: 300px;
                             overflow-y: auto;
                         `;
+
+                        // Позиция у статуса
+                        const rect = status.getBoundingClientRect();
+                        dropdown.style.top = (rect.bottom + 5) + 'px';
+                        dropdown.style.left = rect.left + 'px';
 
                         availableStatuses.forEach(st => {
                             const option = document.createElement('div');
@@ -1081,7 +1085,9 @@
                                 }
                             };
 
-                            option.onclick = () => {
+                            option.onclick = (e) => {
+                                e.stopPropagation();
+                                console.log('Selected status:', st);
                                 task.status = st;
                                 status.setAttribute('data-status', st);
                                 status.textContent = st;
@@ -1096,16 +1102,18 @@
                             dropdown.appendChild(option);
                         });
 
-                        status.appendChild(dropdown);
+                        document.body.appendChild(dropdown);
 
                         // Закрываю dropdown при клике вне
                         const closeDropdown = (e) => {
-                            if (!status.contains(e.target)) {
+                            if (!dropdown.contains(e.target) && !status.contains(e.target)) {
                                 dropdown.remove();
                                 document.removeEventListener('click', closeDropdown);
                             }
                         };
-                        document.addEventListener('click', closeDropdown);
+                        setTimeout(() => {
+                            document.addEventListener('click', closeDropdown);
+                        }, 0);
                     };
 
                     taskItem.appendChild(status);
