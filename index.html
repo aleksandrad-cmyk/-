@@ -238,6 +238,23 @@
             font-style: italic;
         }
 
+        .status-dropdown {
+            z-index: 10000;
+        }
+
+        .status-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .status-dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        .status-dropdown::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 3px;
+        }
+
         .project-info {
             background: #f8f9fa;
             padding: 15px;
@@ -996,6 +1013,97 @@
                     status.className = 'task-status';
                     status.setAttribute('data-status', task.status);
                     status.textContent = task.status;
+                    status.style.cursor = 'pointer';
+                    status.style.position = 'relative';
+
+                    // Доступные статусы
+                    const availableStatuses = [
+                        'в работе',
+                        'ожидание',
+                        'к выполнению',
+                        'в процессе',
+                        'в планировании',
+                        'в обсуждении',
+                        'к согласованию',
+                        'к отправке',
+                        'еженедельно',
+                        'по мере',
+                        'текущая',
+                        'опционально',
+                        'критично',
+                        'важно',
+                        '✔️',
+                        'завершение'
+                    ];
+
+                    status.onclick = (e) => {
+                        e.stopPropagation();
+
+                        // Удаляю старый dropdown если есть
+                        const oldDropdown = document.querySelector('.status-dropdown');
+                        if (oldDropdown) oldDropdown.remove();
+
+                        // Создаю dropdown
+                        const dropdown = document.createElement('div');
+                        dropdown.className = 'status-dropdown';
+                        dropdown.style.cssText = `
+                            position: absolute;
+                            top: 100%;
+                            left: 0;
+                            background: white;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                            z-index: 1000;
+                            min-width: 180px;
+                            max-height: 300px;
+                            overflow-y: auto;
+                        `;
+
+                        availableStatuses.forEach(st => {
+                            const option = document.createElement('div');
+                            option.style.cssText = `
+                                padding: 10px 15px;
+                                cursor: pointer;
+                                font-size: 12px;
+                                border-bottom: 1px solid #f0f0f0;
+                                transition: background 0.2s;
+                                ${st === task.status ? 'background: #e8f4f8; font-weight: bold;' : ''}
+                            `;
+                            option.textContent = st;
+
+                            option.onmouseover = () => {
+                                option.style.background = '#f0f0f0';
+                            };
+                            option.onmouseout = () => {
+                                if (st !== task.status) {
+                                    option.style.background = 'white';
+                                }
+                            };
+
+                            option.onclick = () => {
+                                task.status = st;
+                                status.setAttribute('data-status', st);
+                                status.textContent = st;
+                                dropdown.remove();
+                                saveTaskStatus(currentProject, task.text, st);
+                            };
+
+                            dropdown.appendChild(option);
+                        });
+
+                        status.appendChild(dropdown);
+
+                        // Закрываю dropdown при клике вне
+                        const closeDropdown = (e) => {
+                            if (!status.contains(e.target)) {
+                                dropdown.remove();
+                                document.removeEventListener('click', closeDropdown);
+                            }
+                        };
+                        document.addEventListener('click', closeDropdown);
+                    };
+
                     taskItem.appendChild(status);
 
                     section.appendChild(taskItem);
@@ -1231,6 +1339,19 @@
                 progress[checkbox.id] = true;
             });
             localStorage.setItem('handover_progress', JSON.stringify(progress));
+        }
+
+        function saveTaskStatus(projectKey, taskText, newStatus) {
+            const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+            const key = `${projectKey}_${taskText.substring(0, 50)}`;
+            statusMap[key] = newStatus;
+            localStorage.setItem('task_statuses', JSON.stringify(statusMap));
+        }
+
+        function loadTaskStatus(projectKey, taskText, originalStatus) {
+            const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+            const key = `${projectKey}_${taskText.substring(0, 50)}`;
+            return statusMap[key] || originalStatus;
         }
 
         function loadProgress() {
