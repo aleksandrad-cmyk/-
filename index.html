@@ -813,6 +813,9 @@
         function initializeDeadlines() {
             // Загружаю отредактированные тексты
             const savedEdits = JSON.parse(localStorage.getItem('task_edits') || '{}');
+            const savedDeadlines = JSON.parse(localStorage.getItem('task_deadlines') || '{}');
+            const savedStatuses = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+            
             Object.keys(projects).forEach(projectKey => {
                 const project = projects[projectKey];
                 const allTasks = [
@@ -823,11 +826,39 @@
                 ];
                 
                 allTasks.forEach(task => {
+                    // Загружаю сохраненный текст
                     if (savedEdits[task.text]) {
                         task.text = savedEdits[task.text];
                     }
+                    // Загружаю сохраненный дедлайн
+                    if (savedDeadlines[task.text]) {
+                        task.deadline = savedDeadlines[task.text];
+                    }
+                    // Загружаю сохраненный статус
+                    if (savedStatuses[task.text]) {
+                        task.status = savedStatuses[task.text];
+                    }
                 });
             });
+            
+            // Загружаю добавленные/удаленные задачи
+            const savedProjects = localStorage.getItem('project_structure');
+            if (savedProjects) {
+                try {
+                    const loaded = JSON.parse(savedProjects);
+                    Object.keys(loaded).forEach(projectKey => {
+                        if (projects[projectKey]) {
+                            ['documents', 'statuses', 'payments', 'critical'].forEach(type => {
+                                if (loaded[projectKey][type]) {
+                                    projects[projectKey][type] = loaded[projectKey][type];
+                                }
+                            });
+                        }
+                    });
+                } catch (e) {
+                    console.error('Ошибка загрузки структуры:', e);
+                }
+            }
 
             // Добавляю дедлайн ко всем задачам, которые его не имеют
             Object.keys(projects).forEach(projectKey => {
@@ -1072,7 +1103,6 @@
                                 const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
                                 edits[originalText] = newText;
                                 localStorage.setItem('task_edits', JSON.stringify(edits));
-                            }
                                 // Сохраняю в localStorage
                                 const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
                                 edits[originalText] = newText;
@@ -1156,6 +1186,10 @@
                                 const deadlines = JSON.parse(localStorage.getItem('task_deadlines') || '{}');
                                 deadlines[task.text] = newDeadline;
                                 localStorage.setItem('task_deadlines', JSON.stringify(deadlines));
+                                // Сохраняю в localStorage
+                                const deadlines = JSON.parse(localStorage.getItem('task_deadlines') || '{}');
+                                deadlines[task.text] = newDeadline;
+                                localStorage.setItem('task_deadlines', JSON.stringify(deadlines));
                                 
                                 deadlineBadge.innerHTML = '';
                                 deadlineBadge.textContent = task.deadline ? `⏰ ${task.deadline}` : '⏰ (нет)';
@@ -1179,6 +1213,45 @@
 
                     taskItem.appendChild(checkbox);
                     taskItem.appendChild(contentWrapper);
+
+                    // Кнопка удаления задачи
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '✕';
+                    deleteBtn.style.cssText = `
+                        background: #e74c3c;
+                        color: white;
+                        border: none;
+                        border-radius: 3px;
+                        padding: 4px 8px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: bold;
+                        transition: all 0.2s;
+                        min-width: 30px;
+                    `;
+                    
+                    deleteBtn.onmouseover = () => {
+                        deleteBtn.style.background = '#c0392b';
+                    };
+                    deleteBtn.onmouseout = () => {
+                        deleteBtn.style.background = '#e74c3c';
+                    };
+                    
+                    deleteBtn.onclick = () => {
+                        if (confirm('Удалить эту задачу?')) {
+                            // Удаляю задачу из массива
+                            const taskArray = section.getAttribute('data-task-array');
+                            const taskIndex = project[taskArray].indexOf(task);
+                            if (taskIndex > -1) {
+                                project[taskArray].splice(taskIndex, 1);
+                                taskItem.remove();
+                                // Сохраняю изменения
+                                localStorage.setItem('project_changes', JSON.stringify(projects));
+                            }
+                        }
+                    };
+                    
+                    taskItem.appendChild(deleteBtn);
 
                     const status = document.createElement('div');
                     status.className = 'task-status';
@@ -1265,6 +1338,11 @@
                                 dropdown.remove();
                                 // Сохраняю статус
                                 const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+                                const key = `${task.text}`;
+                                statusMap[key] = st;
+                                localStorage.setItem('task_statuses', JSON.stringify(statusMap));
+                                // Сохраняю статус
+                                const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
                                 const key = `${currentProject}_${task.text.substring(0, 50)}`;
                                 statusMap[key] = st;
                                 localStorage.setItem('task_statuses', JSON.stringify(statusMap));
@@ -1291,6 +1369,51 @@
 
                     section.appendChild(taskItem);
                 });
+            }
+
+            // Кнопка добавления новой задачи в секцию
+            if (tasks.length >= 0) {
+                const addTaskBtn = document.createElement('div');
+                addTaskBtn.style.cssText = `
+                    padding: 12px 20px;
+                    border-top: 1px solid #eee;
+                    cursor: pointer;
+                    color: #3498db;
+                    font-size: 13px;
+                    font-weight: bold;
+                    transition: all 0.2s;
+                    text-align: center;
+                `;
+                addTaskBtn.textContent = '+ Добавить задачу';
+                
+                addTaskBtn.onmouseover = () => {
+                    addTaskBtn.style.background = '#f0f0f0';
+                };
+                addTaskBtn.onmouseout = () => {
+                    addTaskBtn.style.background = 'transparent';
+                };
+                
+                addTaskBtn.onclick = () => {
+                    const taskText = prompt('Введите текст новой задачи:');
+                    if (taskText && taskText.trim()) {
+                        const newTask = {
+                            text: taskText.trim(),
+                            status: 'к выполнению',
+                            forLuba: false,
+                            deadline: ''
+                        };
+                        
+                        tasks.push(newTask);
+                        // Сохраняю структуру проектов
+                        localStorage.setItem('project_structure', JSON.stringify(projects));
+                        localStorage.setItem('project_changes', JSON.stringify(projects));
+                        
+                        // Перерисовываю секцию
+                        renderContent(project);
+                    }
+                };
+                
+                section.appendChild(addTaskBtn);
             }
 
             return section;
