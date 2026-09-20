@@ -232,6 +232,12 @@
             min-width: fit-content;
         }
 
+        .task-status[data-status="опционально"] {
+            background: #f0f0f0;
+            color: #95a5a6;
+            font-style: italic;
+        }
+
         .project-info {
             background: #f8f9fa;
             padding: 15px;
@@ -378,7 +384,7 @@
                 ],
                 critical: [
                     { text: "🔴 ВАЖНО: Саша Никуличев должен сделать аудит сайта в срок — следить за выполнением", status: "критично", forLuba: false },
-                    { text: "Согласовать встречу с Софьей и её коллегами из коммерческого отдела для обсуждения структуры каталога", status: "важно", forLuba: false },
+                    { text: "Согласовать встречу с Софьей и её коллегами из коммерческого отдела для обсуждения структуры каталога", status: "опционально", forLuba: true },
                     { text: "По итогам: объединить данные аудита Саши + результаты встречи с коммерческим отделом → единая структура каталога", status: "важно", forLuba: false }
                 ]
             },
@@ -988,6 +994,7 @@
 
                     const status = document.createElement('div');
                     status.className = 'task-status';
+                    status.setAttribute('data-status', task.status);
                     status.textContent = task.status;
                     taskItem.appendChild(status);
 
