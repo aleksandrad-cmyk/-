@@ -1020,6 +1020,8 @@
 
             // Собираю все задачи Любы, сгруппированные по проектам
             const tasksByProject = {};
+            const allStatuses = new Set();
+            
             Object.keys(projects).forEach(projectKey => {
                 const project = projects[projectKey];
                 const lubaTasks = [];
@@ -1038,6 +1040,7 @@
                             deadline: task.deadline || 'не указан',
                             status: task.status
                         });
+                        allStatuses.add(task.status);
                     }
                 });
 
@@ -1048,6 +1051,103 @@
                     };
                 }
             });
+
+            // Фильтры
+            const filterContainer = document.createElement('div');
+            filterContainer.style.cssText = 'background: white; border-radius: 8px; padding: 15px 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);';
+            
+            const filterTitle = document.createElement('div');
+            filterTitle.style.cssText = 'font-weight: bold; font-size: 13px; color: #2c3e50; margin-bottom: 10px;';
+            filterTitle.textContent = '🔍 Фильтр по типу задачи:';
+            filterContainer.appendChild(filterTitle);
+
+            const filterButtons = document.createElement('div');
+            filterButtons.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px;';
+
+            const statusGroups = {
+                'Высокий приоритет': ['АСАП', 'СРОЧНО', 'критично', 'важно'],
+                'Опционально': ['опционально'],
+                'Регулярная': ['еженедельно', 'по мере', 'текущая'],
+                'В ожидании': ['ожидание', 'после согласования', 'после получения', 'после готовности']
+            };
+
+            let activeFilter = null;
+
+            const showFilteredTasks = (filterType) => {
+                const projectsDiv = contentBody.querySelector('#projects-container');
+                if (!projectsDiv) return;
+
+                const projects = projectsDiv.querySelectorAll('[data-project]');
+                projects.forEach(projectEl => {
+                    const tasks = projectEl.querySelectorAll('[data-task]');
+                    let visibleCount = 0;
+
+                    tasks.forEach(taskEl => {
+                        const taskStatus = taskEl.getAttribute('data-status');
+                        let shouldShow = true;
+
+                        if (filterType && statusGroups[filterType]) {
+                            shouldShow = statusGroups[filterType].includes(taskStatus);
+                        }
+
+                        taskEl.style.display = shouldShow ? 'grid' : 'none';
+                        if (shouldShow) visibleCount++;
+                    });
+
+                    projectEl.style.display = visibleCount > 0 ? 'block' : 'none';
+                });
+            };
+
+            Object.keys(statusGroups).forEach(filterType => {
+                const button = document.createElement('button');
+                button.style.cssText = `
+                    padding: 8px 15px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    background: white;
+                    color: #2c3e50;
+                    cursor: pointer;
+                    font-size: 12px;
+                    transition: all 0.2s;
+                `;
+                button.textContent = filterType;
+                
+                button.onmouseover = () => {
+                    button.style.background = '#f0f0f0';
+                };
+                button.onmouseout = () => {
+                    if (activeFilter !== filterType) {
+                        button.style.background = 'white';
+                    }
+                };
+
+                button.onclick = () => {
+                    // Убираю активность со всех кнопок
+                    filterButtons.querySelectorAll('button').forEach(btn => {
+                        btn.style.background = 'white';
+                        btn.style.borderColor = '#ddd';
+                        btn.style.fontWeight = 'normal';
+                    });
+
+                    // Активирую текущую кнопку
+                    if (activeFilter === filterType) {
+                        activeFilter = null;
+                        showFilteredTasks(null);
+                    } else {
+                        activeFilter = filterType;
+                        button.style.background = '#3498db';
+                        button.style.color = 'white';
+                        button.style.borderColor = '#3498db';
+                        button.style.fontWeight = 'bold';
+                        showFilteredTasks(filterType);
+                    }
+                };
+
+                filterButtons.appendChild(button);
+            });
+
+            filterContainer.appendChild(filterButtons);
+            contentBody.appendChild(filterContainer);
 
             // Сортирую дедлайны
             const deadlineOrder = {
@@ -1062,12 +1162,17 @@
                 'не указан': 99
             };
 
+            // Контейнер для проектов
+            const projectsContainer = document.createElement('div');
+            projectsContainer.id = 'projects-container';
+
             // Выводу сводку по проектам
             Object.keys(tasksByProject).forEach(projectKey => {
                 const projectData = tasksByProject[projectKey];
                 
                 // Заголовок проекта
                 const projectHeader = document.createElement('div');
+                projectHeader.setAttribute('data-project', projectKey);
                 projectHeader.style.cssText = 'background: white; border-radius: 8px; margin-bottom: 15px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05);';
                 
                 const headerTitle = document.createElement('div');
@@ -1087,6 +1192,8 @@
 
                 projectData.tasks.forEach((task, index) => {
                     const taskRow = document.createElement('div');
+                    taskRow.setAttribute('data-task', '1');
+                    taskRow.setAttribute('data-status', task.status);
                     taskRow.style.cssText = `display: grid; grid-template-columns: 1fr 150px 150px; gap: 15px; padding: 12px 20px; border-bottom: 1px solid #eee; align-items: start; ${index % 2 === 0 ? 'background: #fafafa;' : 'background: white;'}`;
                     
                     const deadlineClass = ['АСАП', 'СРОЧНО'].includes(task.deadline) ? 'color: #e74c3c; font-weight: bold;' : '';
@@ -1095,15 +1202,17 @@
                     taskRow.innerHTML = `
                         <div style="font-size: 13px; line-height: 1.5; color: #2c3e50;">${task.task}</div>
                         <div style="${deadlineClass} font-size: 13px; ${isRecurring ? 'color: #f39c12;' : ''}">${task.deadline}</div>
-                        <div style="font-size: 12px; background: #ecf0f1; padding: 4px 8px; border-radius: 3px; color: #7f8c8d; text-align: center;">${task.status}</div>
+                        <div style="font-size: 12px; background: #ecf0f1; padding: 4px 8px; border-radius: 3px; color: #7f8c8d; text-align: center; cursor: pointer;" data-status-badge="${task.status}">${task.status}</div>
                     `;
                     
                     tasksTable.appendChild(taskRow);
                 });
 
                 projectHeader.appendChild(tasksTable);
-                contentBody.appendChild(projectHeader);
+                projectsContainer.appendChild(projectHeader);
             });
+
+            contentBody.appendChild(projectsContainer);
 
             // Статистика внизу
             const totalTasks = Object.values(tasksByProject).reduce((sum, p) => sum + p.tasks.length, 0);
