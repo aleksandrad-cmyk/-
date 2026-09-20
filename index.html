@@ -1086,7 +1086,11 @@
                                 status.setAttribute('data-status', st);
                                 status.textContent = st;
                                 dropdown.remove();
-                                saveTaskStatus(currentProject, task.text, st);
+                                // Сохраняю статус
+                                const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+                                const key = `${currentProject}_${task.text.substring(0, 50)}`;
+                                statusMap[key] = st;
+                                localStorage.setItem('task_statuses', JSON.stringify(statusMap));
                             };
 
                             dropdown.appendChild(option);
