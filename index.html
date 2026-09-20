@@ -956,15 +956,14 @@
             notesTextarea.id = `notes-${currentProject}`;
             
             // Загружаем сохраненные заметки
-            const savedNotes = undefined;
+            const savedNotes = localStorage.getItem(`notes-${currentProject}`);
             if (savedNotes) {
                 notesTextarea.value = savedNotes;
             }
             
             // Автосохранение при изменении
             notesTextarea.addEventListener('input', () => {
-                        // localStorage removed
-                
+                localStorage.setItem(`notes-${currentProject}`, notesTextarea.value);
             });
             
             notesDiv.appendChild(notesTextarea);
@@ -1052,14 +1051,9 @@
                             if (newText && newText !== originalText) {
                                 task.text = newText;
                                 // Сохраняю в localStorage
-                                const edits = JSON.parse(undefined || '{}');
+                                const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
                                 edits[originalText] = newText;
-                                // localStorage removed
-                            }
-                                // Сохраняю в localStorage
-                                const edits = JSON.parse(undefined || '{}');
-                                edits[originalText] = newText;
-                                
+                                localStorage.setItem('task_edits', JSON.stringify(edits));
                             }
                             
                             // Восстанавливаю отображение
@@ -1136,15 +1130,9 @@
                                 const newDeadline = input.value.trim();
                                 task.deadline = newDeadline;
                                 // Сохраняю в localStorage
-                                const deadlines = JSON.parse(undefined || '{}');
+                                const deadlines = JSON.parse(localStorage.getItem('task_deadlines') || '{}');
                                 deadlines[task.text] = newDeadline;
-                                // localStorage removed
-                                // Сохраняю в localStorage
-                                const deadlines = JSON.parse(undefined || '{}');
-                                const deadlines = JSON.parse(undefined || '{}');
-                                deadlines[task.text] = newDeadline;
-                                // localStorage removed
-                                
+                                localStorage.setItem('task_deadlines', JSON.stringify(deadlines));
                                 
                                 deadlineBadge.innerHTML = '';
                                 deadlineBadge.textContent = task.deadline ? `⏰ ${task.deadline}` : '⏰ (нет)';
@@ -1201,7 +1189,7 @@
                                 project[taskArray].splice(taskIndex, 1);
                                 taskItem.remove();
                                 // Сохраняю изменения
-                                // localStorage removed
+                                localStorage.setItem('project_changes', JSON.stringify(projects));
                             }
                         }
                     };
@@ -1281,15 +1269,10 @@
                                 status.textContent = st;
                                 dropdown.remove();
                                 // Сохраняю статус
-                                const statusMap = JSON.parse(undefined || '{}');
+                                const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
                                 const key = `${currentProject}_${task.text.substring(0, 50)}`;
                                 statusMap[key] = st;
-                                // localStorage removed
-                                // Сохраняю статус
-                                const statusMap = JSON.parse(undefined || '{}');
-                                const key = `${currentProject}_${task.text.substring(0, 50)}`;
-                                statusMap[key] = st;
-                                
+                                localStorage.setItem('task_statuses', JSON.stringify(statusMap));
                             };
 
                             dropdown.appendChild(option);
@@ -1355,8 +1338,7 @@
                             currentProj[type].push(newTask);
                         }
                         
-                        // localStorage removed
-                        
+                        localStorage.setItem('project_changes', JSON.stringify(projects));
                         
                         // Перерисовываю текущий проект
                         renderContent(currentProj);
@@ -1595,24 +1577,24 @@
             document.querySelectorAll('.task-checkbox:checked').forEach(checkbox => {
                 progress[checkbox.id] = true;
             });
-            // localStorage removed
+            localStorage.setItem('handover_progress', JSON.stringify(progress));
         }
 
         function saveTaskStatus(projectKey, taskText, newStatus) {
-            const statusMap = JSON.parse(undefined || '{}');
+            const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
             const key = `${projectKey}_${taskText.substring(0, 50)}`;
             statusMap[key] = newStatus;
-            
+            localStorage.setItem('task_statuses', JSON.stringify(statusMap));
         }
 
         function loadTaskStatus(projectKey, taskText, originalStatus) {
-            const statusMap = JSON.parse(undefined || '{}');
+            const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
             const key = `${projectKey}_${taskText.substring(0, 50)}`;
             return statusMap[key] || originalStatus;
         }
 
         function loadProgress() {
-            const progress = JSON.parse(undefined || '{}');
+            const progress = JSON.parse(localStorage.getItem('handover_progress') || '{}');
             Object.keys(progress).forEach(id => {
                 const checkbox = document.getElementById(id);
                 if (checkbox) {
