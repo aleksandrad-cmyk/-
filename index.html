@@ -983,6 +983,8 @@
 
                     const text = document.createElement('div');
                     text.className = 'task-text';
+                    text.style.cursor = 'pointer';
+                    text.style.transition = 'all 0.2s';
                     
                     if (task.forLuba) {
                         const badge = document.createElement('span');
@@ -996,6 +998,81 @@
                     } else {
                         text.textContent = task.text;
                     }
+
+                    // Делаю текст редактируемым при клике
+                    text.onclick = (e) => {
+                        if (e.target.tagName === 'INPUT') return; // Если уже в режиме редактирования
+                        
+                        const originalText = task.text;
+                        const currentText = task.forLuba ? text.querySelector('span:last-child').textContent : text.textContent;
+                        
+                        // Очищаю текст
+                        text.innerHTML = '';
+                        
+                        // Создаю input
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.value = currentText;
+                        input.style.cssText = `
+                            padding: 8px 12px;
+                            border: 2px solid #3498db;
+                            border-radius: 4px;
+                            font-size: 13px;
+                            width: 100%;
+                            font-family: inherit;
+                        `;
+                        
+                        text.appendChild(input);
+                        input.focus();
+                        input.select();
+                        
+                        const saveEdit = () => {
+                            const newText = input.value.trim();
+                            if (newText && newText !== originalText) {
+                                task.text = newText;
+                                // Сохраняю в localStorage
+                                const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
+                                edits[originalText] = newText;
+                                localStorage.setItem('task_edits', JSON.stringify(edits));
+                            }
+                            
+                            // Восстанавливаю отображение
+                            text.innerHTML = '';
+                            if (task.forLuba) {
+                                const badge = document.createElement('span');
+                                badge.className = 'luba-badge';
+                                badge.textContent = '👤 Люба';
+                                text.appendChild(badge);
+                                
+                                const textNode = document.createElement('span');
+                                textNode.textContent = task.text;
+                                text.appendChild(textNode);
+                            } else {
+                                text.textContent = task.text;
+                            }
+                        };
+                        
+                        input.onblur = saveEdit;
+                        input.onkeydown = (e) => {
+                            if (e.key === 'Enter') {
+                                saveEdit();
+                            } else if (e.key === 'Escape') {
+                                text.innerHTML = '';
+                                if (task.forLuba) {
+                                    const badge = document.createElement('span');
+                                    badge.className = 'luba-badge';
+                                    badge.textContent = '👤 Люба';
+                                    text.appendChild(badge);
+                                    
+                                    const textNode = document.createElement('span');
+                                    textNode.textContent = task.text;
+                                    text.appendChild(textNode);
+                                } else {
+                                    text.textContent = task.text;
+                                }
+                            }
+                        };
+                    };
 
                     contentWrapper.appendChild(text);
 
