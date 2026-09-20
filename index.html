@@ -810,7 +810,27 @@
 
         let currentProject = null;
 
+        function initializeDeadlines() {
+            // Добавляю дедлайн ко всем задачам, которые его не имеют
+            Object.keys(projects).forEach(projectKey => {
+                const project = projects[projectKey];
+                const allTasks = [
+                    ...(project.documents || []),
+                    ...(project.statuses || []),
+                    ...(project.payments || []),
+                    ...(project.critical || [])
+                ];
+                
+                allTasks.forEach(task => {
+                    if (!task.deadline) {
+                        task.deadline = '';
+                    }
+                });
+            });
+        }
+
         function initProjects() {
+            initializeDeadlines();
             const projectList = document.getElementById('projectList');
             
             Object.keys(projects).forEach((key, index) => {
@@ -936,14 +956,15 @@
             notesTextarea.id = `notes-${currentProject}`;
             
             // Загружаем сохраненные заметки
-            const savedNotes = localStorage.getItem(`notes-${currentProject}`);
+            const savedNotes = undefined;
             if (savedNotes) {
                 notesTextarea.value = savedNotes;
             }
             
             // Автосохранение при изменении
             notesTextarea.addEventListener('input', () => {
-                localStorage.setItem(`notes-${currentProject}`, notesTextarea.value);
+                        // localStorage removed
+                
             });
             
             notesDiv.appendChild(notesTextarea);
@@ -1031,9 +1052,14 @@
                             if (newText && newText !== originalText) {
                                 task.text = newText;
                                 // Сохраняю в localStorage
-                                const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
+                                const edits = JSON.parse(undefined || '{}');
                                 edits[originalText] = newText;
-                                localStorage.setItem('task_edits', JSON.stringify(edits));
+                                // localStorage removed
+                            }
+                                // Сохраняю в localStorage
+                                const edits = JSON.parse(undefined || '{}');
+                                edits[originalText] = newText;
+                                
                             }
                             
                             // Восстанавливаю отображение
@@ -1076,15 +1102,111 @@
 
                     contentWrapper.appendChild(text);
 
-                    if (task.deadline) {
+                    if (task.deadline !== undefined && task.deadline !== null) {
                         const deadlineBadge = document.createElement('div');
                         deadlineBadge.className = 'deadline-badge';
-                        deadlineBadge.textContent = `⏰ ${task.deadline}`;
+                        deadlineBadge.textContent = task.deadline ? `⏰ ${task.deadline}` : '⏰ (нет)';
+                        deadlineBadge.style.cursor = 'pointer';
+                        deadlineBadge.style.userSelect = 'none';
+                        
+                        deadlineBadge.onclick = (e) => {
+                            e.stopPropagation();
+                            
+                            const originalDeadline = task.deadline;
+                            deadlineBadge.innerHTML = '';
+                            
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.value = originalDeadline || '';
+                            input.placeholder = 'Введите дедлайн...';
+                            input.style.cssText = `
+                                padding: 4px 8px;
+                                border: 2px solid #e74c3c;
+                                border-radius: 3px;
+                                font-size: 11px;
+                                width: 130px;
+                                font-family: inherit;
+                            `;
+                            
+                            deadlineBadge.appendChild(input);
+                            input.focus();
+                            input.select();
+                            
+                            const saveDeadline = () => {
+                                const newDeadline = input.value.trim();
+                                task.deadline = newDeadline;
+                                // Сохраняю в localStorage
+                                const deadlines = JSON.parse(undefined || '{}');
+                                deadlines[task.text] = newDeadline;
+                                // localStorage removed
+                                // Сохраняю в localStorage
+                                const deadlines = JSON.parse(undefined || '{}');
+                                const deadlines = JSON.parse(undefined || '{}');
+                                deadlines[task.text] = newDeadline;
+                                // localStorage removed
+                                
+                                
+                                deadlineBadge.innerHTML = '';
+                                deadlineBadge.textContent = task.deadline ? `⏰ ${task.deadline}` : '⏰ (нет)';
+                                deadlineBadge.style.cursor = 'pointer';
+                            };
+                            
+                            input.onblur = saveDeadline;
+                            input.onkeydown = (e) => {
+                                if (e.key === 'Enter') {
+                                    saveDeadline();
+                                } else if (e.key === 'Escape') {
+                                    deadlineBadge.innerHTML = '';
+                                    deadlineBadge.textContent = task.deadline ? `⏰ ${task.deadline}` : '⏰ (нет)';
+                                    deadlineBadge.style.cursor = 'pointer';
+                                }
+                            };
+                        };
+                        
                         contentWrapper.appendChild(deadlineBadge);
                     }
 
                     taskItem.appendChild(checkbox);
                     taskItem.appendChild(contentWrapper);
+
+                    // Кнопка удаления задачи
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = '✕';
+                    deleteBtn.style.cssText = `
+                        background: #e74c3c;
+                        color: white;
+                        border: none;
+                        border-radius: 3px;
+                        padding: 4px 8px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: bold;
+                        transition: all 0.2s;
+                        min-width: 30px;
+                    `;
+                    
+                    deleteBtn.onmouseover = () => {
+                        deleteBtn.style.background = '#c0392b';
+                    };
+                    deleteBtn.onmouseout = () => {
+                        deleteBtn.style.background = '#e74c3c';
+                    };
+                    
+                    deleteBtn.onclick = () => {
+                        if (confirm('Удалить эту задачу?')) {
+                            // Удаляю задачу из массива
+                            const taskArray = section.getAttribute('data-task-array');
+                            const taskIndex = project[taskArray].indexOf(task);
+                            if (taskIndex > -1) {
+                                project[taskArray].splice(taskIndex, 1);
+                                taskItem.remove();
+                                // Сохраняю изменения
+                                // localStorage removed
+                            }
+                        }
+                    };
+                    
+                    taskItem.appendChild(deleteBtn);
 
                     const status = document.createElement('div');
                     status.className = 'task-status';
@@ -1095,22 +1217,11 @@
 
                     // Доступные статусы
                     const availableStatuses = [
-                        'в работе',
-                        'ожидание',
-                        'к выполнению',
-                        'в процессе',
-                        'в планировании',
-                        'в обсуждении',
-                        'к согласованию',
-                        'к отправке',
-                        'еженедельно',
-                        'по мере',
-                        'текущая',
-                        'опционально',
-                        'критично',
-                        'важно',
-                        '✔️',
-                        'завершение'
+                        'Высокий приоритет',
+                        'Средний приоритет',
+                        'Опционально',
+                        'Регулярная',
+                        'Документы'
                     ];
 
                     status.onclick = (e) => {
@@ -1170,10 +1281,15 @@
                                 status.textContent = st;
                                 dropdown.remove();
                                 // Сохраняю статус
-                                const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+                                const statusMap = JSON.parse(undefined || '{}');
                                 const key = `${currentProject}_${task.text.substring(0, 50)}`;
                                 statusMap[key] = st;
-                                localStorage.setItem('task_statuses', JSON.stringify(statusMap));
+                                // localStorage removed
+                                // Сохраняю статус
+                                const statusMap = JSON.parse(undefined || '{}');
+                                const key = `${currentProject}_${task.text.substring(0, 50)}`;
+                                statusMap[key] = st;
+                                
                             };
 
                             dropdown.appendChild(option);
@@ -1197,6 +1313,57 @@
 
                     section.appendChild(taskItem);
                 });
+            }
+
+            // Кнопка добавления новой задачи в секцию
+            if (tasks.length >= 0) {
+                const addTaskBtn = document.createElement('div');
+                addTaskBtn.style.cssText = `
+                    padding: 12px 20px;
+                    border-top: 1px solid #eee;
+                    cursor: pointer;
+                    color: #3498db;
+                    font-size: 13px;
+                    font-weight: bold;
+                    transition: all 0.2s;
+                    text-align: center;
+                `;
+                addTaskBtn.textContent = '+ Добавить задачу';
+                
+                addTaskBtn.onmouseover = () => {
+                    addTaskBtn.style.background = '#f0f0f0';
+                };
+                addTaskBtn.onmouseout = () => {
+                    addTaskBtn.style.background = 'transparent';
+                };
+                
+                addTaskBtn.onclick = () => {
+                    const taskText = prompt('Введите текст новой задачи:');
+                    if (taskText && taskText.trim()) {
+                        const forLuba = confirm('Это задача для Люби?\n\nОК - для Люби\nОтмена - для Саши');
+                        
+                        const newTask = {
+                            text: taskText.trim(),
+                            status: 'Высокий приоритет',
+                            forLuba: forLuba,
+                            deadline: ''
+                        };
+                        
+                        // Добавляю в правильный массив проекта
+                        const currentProj = projects[currentProject];
+                        if (currentProj[type]) {
+                            currentProj[type].push(newTask);
+                        }
+                        
+                        // localStorage removed
+                        
+                        
+                        // Перерисовываю текущий проект
+                        renderContent(currentProj);
+                    }
+                };
+                
+                section.appendChild(addTaskBtn);
             }
 
             return section;
@@ -1262,10 +1429,11 @@
             filterButtons.style.cssText = 'display: flex; flex-wrap: wrap; gap: 10px;';
 
             const statusGroups = {
-                'Высокий приоритет': ['АСАП', 'СРОЧНО', 'критично', 'важно'],
-                'Опционально': ['опционально'],
-                'Регулярная': ['еженедельно', 'по мере', 'текущая'],
-                'В ожидании': ['ожидание', 'после согласования', 'после получения', 'после готовности']
+                'Высокий приоритет': ['АСАП', 'СРОЧНО', 'критично', 'важно', 'Высокий приоритет'],
+                'Средний приоритет': ['ожидание', 'после согласования', 'после получения', 'после готовности', 'Средний приоритет', 'в работе', 'к выполнению', 'в процессе'],
+                'Опционально': ['опционально', 'Опционально'],
+                'Регулярная': ['еженедельно', 'по мере', 'текущая', 'Регулярная'],
+                'Документы': ['Документы']
             };
 
             let activeFilter = null;
@@ -1427,24 +1595,24 @@
             document.querySelectorAll('.task-checkbox:checked').forEach(checkbox => {
                 progress[checkbox.id] = true;
             });
-            localStorage.setItem('handover_progress', JSON.stringify(progress));
+            // localStorage removed
         }
 
         function saveTaskStatus(projectKey, taskText, newStatus) {
-            const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+            const statusMap = JSON.parse(undefined || '{}');
             const key = `${projectKey}_${taskText.substring(0, 50)}`;
             statusMap[key] = newStatus;
-            localStorage.setItem('task_statuses', JSON.stringify(statusMap));
+            
         }
 
         function loadTaskStatus(projectKey, taskText, originalStatus) {
-            const statusMap = JSON.parse(localStorage.getItem('task_statuses') || '{}');
+            const statusMap = JSON.parse(undefined || '{}');
             const key = `${projectKey}_${taskText.substring(0, 50)}`;
             return statusMap[key] || originalStatus;
         }
 
         function loadProgress() {
-            const progress = JSON.parse(localStorage.getItem('handover_progress') || '{}');
+            const progress = JSON.parse(undefined || '{}');
             Object.keys(progress).forEach(id => {
                 const checkbox = document.getElementById(id);
                 if (checkbox) {
