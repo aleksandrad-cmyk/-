@@ -811,6 +811,24 @@
         let currentProject = null;
 
         function initializeDeadlines() {
+            // Загружаю отредактированные тексты
+            const savedEdits = JSON.parse(localStorage.getItem('task_edits') || '{}');
+            Object.keys(projects).forEach(projectKey => {
+                const project = projects[projectKey];
+                const allTasks = [
+                    ...(project.documents || []),
+                    ...(project.statuses || []),
+                    ...(project.payments || []),
+                    ...(project.critical || [])
+                ];
+                
+                allTasks.forEach(task => {
+                    if (savedEdits[task.text]) {
+                        task.text = savedEdits[task.text];
+                    }
+                });
+            });
+
             // Добавляю дедлайн ко всем задачам, которые его не имеют
             Object.keys(projects).forEach(projectKey => {
                 const project = projects[projectKey];
@@ -1050,6 +1068,11 @@
                             const newText = input.value.trim();
                             if (newText && newText !== originalText) {
                                 task.text = newText;
+                                // Сохраняю в localStorage
+                                const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
+                                edits[originalText] = newText;
+                                localStorage.setItem('task_edits', JSON.stringify(edits));
+                            }
                                 // Сохраняю в localStorage
                                 const edits = JSON.parse(localStorage.getItem('task_edits') || '{}');
                                 edits[originalText] = newText;
