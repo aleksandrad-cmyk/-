@@ -122,10 +122,34 @@
             gap: 8px;
         }
 
+        .section.context { border-left-color: #2196f3; background: #e3f2fd; }
         .section.documents { border-left-color: #e74c3c; }
         .section.statuses { border-left-color: #f39c12; }
         .section.payments { border-left-color: #27ae60; }
         .section.critical { border-left-color: #e74c3c; background: #fef5f5; }
+        .section.notes { border-left-color: #9c27b0; background: #f3e5f5; }
+
+        .context-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .context-list li {
+            padding: 8px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 13px;
+            color: #424242;
+            line-height: 1.5;
+        }
+
+        .context-list li:before {
+            content: "•";
+            position: absolute;
+            left: 8px;
+            color: #2196f3;
+            font-weight: bold;
+        }
 
         .task-item {
             display: flex;
@@ -253,43 +277,22 @@
             text-decoration: underline;
         }
 
-        .context-section {
-            background: #e3f2fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
+        .notes-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 20px;
-        }
-
-        .context-section h3 {
-            font-size: 14px;
-            color: #1976d2;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .context-list {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .context-list li {
-            padding: 8px 0;
-            padding-left: 24px;
-            position: relative;
+            font-family: inherit;
             font-size: 13px;
-            color: #424242;
-            line-height: 1.5;
+            resize: vertical;
+            color: #2c3e50;
         }
 
-        .context-list li:before {
-            content: "•";
-            position: absolute;
-            left: 8px;
-            color: #2196f3;
-            font-weight: bold;
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #9c27b0;
+            box-shadow: 0 0 0 3px rgba(156, 39, 176, 0.1);
         }
 
         .empty-state {
@@ -346,6 +349,13 @@
                 client: "Софья Балыкова (balykova.sofya@knauf.ru, 8-916-863-62-35)",
                 team: "Контекст — Настя Ж, SEO — Саша + Никита (@Kribly), разработчик Никита",
                 sites: "knauf-penoplast.ru (SEO + контекст + WordPress), knauf.ru, box.knauf-penoplast.ru",
+                context: [
+                    "Документы подготовлены и отправлены на согласование (счёт, акты, задачи по SEO)",
+                    "Ожидаем получения оплаты бюджета до 1.10",
+                    "Саша Никуличев готовит аудит сайта",
+                    "Нужна встреча с коммерческим отделом для согласования структуры каталога",
+                    "По итогам встречи и аудита будет сформирована единая структура каталога"
+                ],
                 materials: [
                     { title: "Collab Knauf Penoplast", url: "https://collab.nimax.ru/projects/78" },
                     { title: "План бюджетов на 2026 (сокращен на 30%)", url: "#" },
@@ -362,13 +372,6 @@
                     { text: "Проследить выполнение плана работ — следить за ходом работы", status: "в работе", forLuba: true, deadline: "еженедельно" },
                     { text: "Получить и проверить аудит сайта от Саши", status: "в работе", forLuba: true, deadline: "по факту" }
                 ],
-                context: [
-                    "Документы подготовлены и отправлены на согласование (счёт, акты, задачи по SEO)",
-                    "Ожидаем получения оплаты бюджета до 1.10",
-                    "Саша Никуличев готовит аудит сайта",
-                    "Нужна встреча с коммерческим отделом для согласования структуры каталога",
-                    "По итогам встречи и аудита будет сформирована единая структура каталога"
-                ],
                 payments: [
                     { text: "Получить оплату бюджета", status: "ожидание", forLuba: false, deadline: "до 1.10" },
                     { text: "После получения бюджета: пополнить кабинет", status: "ожидание", forLuba: true }
@@ -384,6 +387,13 @@
                 client: "Алина (romanovaalv@sibur.ru, @avonamor20) — все проектные и документные вопросы",
                 team: "SEO — Настя + Оля, Разрабы — OnlyDigital (Влад @workkamenev, kamenev@only.digital; Тимофей), Копирайтер — Аня Поздняк",
                 sites: "https://career.sibur.ru/",
+                context: [
+                    "Готовим ДС на квартал для согласования с Алиной",
+                    "После согласования отправим в ЭДО и выставим акт за сентябрь",
+                    "С сентября начинаем работы по утвержденному плану",
+                    "Нужно согласовать Case с клиентом",
+                    "На октябрь планируем создание ИИ агента для вычитывания текста"
+                ],
                 materials: [
                     { title: "Передача Юли подробная", url: "https://buildin.ai/nimax/9e4ecc39-5678-45ba-9751-767291edbcc6" },
                     { title: "Папка проекта", url: "#" },
@@ -407,14 +417,21 @@
                 ],
                 critical: [
                     { text: "ОКТЯБРЬ: Учесть в подготовке сметы создание ИИ агента для вычитывания текста (Аня Базняк)", status: "в контексте подготовки сметы", forLuba: false },
-                    { text: "Саша: Поставить задачу Ане Базняк — оценить трудозатраты создания ИИ агента", status: "к выполнению", forLuba: false, deadline: "АСАП" }
+                    { text: "Саша: Поставить задачу Ане Базняк — оценить трудозатраты создания ИИ агента", status: "к выполнению", forLuba: false }
                 ]
             },
             nilts: {
                 name: "Нильс",
-                client: "Кристина (основное контактное лицо, ceo@nilstour.ru, @Kristayna), Виктория (продажник на стороне клиента, согласует ссылки и статьи в чате)",
+                client: "Кристина (@Kristayna, ceo@nilstour.ru) — основное контактное лицо, Ксюша (@ilscorpionli) — в личке",
                 team: "SEO — Настя + Саша, Директ — Света Ишмуратова, Промо-страница — Аня Плотникова, Разработчик — Анастасия (проджект)",
                 sites: "https://nilst.ru/",
+                context: [
+                    "Запустили директ промо-страницы — Света вводит ими",
+                    "Промо-страницы готовит Аня Плотникова",
+                    "SEO закрыли первый месяц, начинаем второй",
+                    "Есть подвисшие вопросы с разработчиками, отвечает Саша Никуличев",
+                    "Нужно передавать информацию между командой и разработчиками"
+                ],
                 materials: [
                     { title: "Проект в коллаб", url: "https://collab.nimax.ru/projects/1242" },
                     { title: "Таймлайн SEO (Nilst.ru — стратегия)", url: "#" },
@@ -424,14 +441,12 @@
                 documents: [
                     { text: "SEO август — закрыт, подписан, деньги получены", status: "✔️", forLuba: false },
                     { text: "Подготовить счет на промо-страницы (обслуживание)", status: "к выполнению", forLuba: false, deadline: "до 2.10" },
-                    { text: "Подготовить счет на директ (обслуживание)", status: "к выполнению", forLuba: false, deadline: "до 2.10" },
-                    { text: "Синхронизировать с Кристиной текущий статус проекта перед отпуском", status: "к выполнению", forLuba: false }
+                    { text: "Подготовить счет на директ (обслуживание)", status: "к выполнению", forLuba: false, deadline: "до 2.10" }
                 ],
                 statuses: [
                     { text: "Люба: Отправлять еженедельную статистику по Директ в понедельник", status: "еженедельно", forLuba: true, deadline: "каждый понедельник" },
                     { text: "Распланировать со специалистами работы SEO на новый месяц", status: "в планировании", forLuba: false },
-                    { text: "Люба: Отслеживать согласованные работы (аутрич, ссылки, статьи)", status: "текущая", forLuba: true, deadline: "по мере" },
-                    { text: "Виктория (клиент) согласует ссылки и статьи в чате", status: "текущая", forLuba: false }
+                    { text: "Люба: Отслеживать согласованные работы (аутрич, ссылки, статьи)", status: "текущая", forLuba: true, deadline: "по мере" }
                 ],
                 payments: [
                     { text: "Получить авансы обслуживания по промо-страницам", status: "ожидание", forLuba: false },
@@ -447,6 +462,13 @@
                 client: "Виктелла (@viktella) — единственное контактное лицо",
                 team: "Промо-страницы — Аня Плотникова (текст), Директ — ведение текущих кампаний, SEO — Аня Поздняк + Саша (закрывают первый месяц), далее Люба отслеживает",
                 sites: "#",
+                context: [
+                    "Стартуем работы по промо-страницам — пишет тексты Аня Плотникова",
+                    "Директ: отключили СНГ, нужно пересмотреть КПИ с Виктеллой",
+                    "Обсуждаем таблицу КПИ (оценка результативности промо и охватных компаний директ)",
+                    "Бюджеты клиент пополняет напрямую",
+                    "SEO первый месяц закрывает Аня + Саша, второй месяц отслеживает Люба"
+                ],
                 materials: [
                     { title: "Проект в коллаб", url: "https://collab.nimax.ru/projects/1264" },
                     { title: "Основные материалы", url: "https://collab.nimax.ru/projects/1264?modal=Task-126297-1264" },
@@ -471,7 +493,7 @@
                 ],
                 critical: [
                     { text: "Саша: Закрыть первый месяц работ SEO совместно с Аней Поздняк", status: "в процессе", forLuba: false },
-                    { text: "Распланироваться со Сфией Поздняк на второй месяц SEO работ", status: "к выполнению", forLuba: false }
+                    { text: "Распланироваться со Сашей Поздняк на второй месяц SEO работ", status: "к выполнению", forLuba: false }
                 ]
             },
             lacor: {
@@ -479,6 +501,13 @@
                 client: "Виктория (7 993 490 7096 в чате) — основное контактное",
                 team: "SEO — Оля + Ратибор (проектный), Разработчики (Тильда→WordPress) — Ванпикс (Артем), Инфлюенс — Диана (@kudryavtseva_di)",
                 sites: "#",
+                context: [
+                    "Закрываем работу SEO второго месяца — Оля + Ратибор",
+                    "Основная часть задач на третий и четвёртый месяц передаётся Ратибору",
+                    "Дописываем копирайт статей для разработки",
+                    "Собираем полностью документы со структурой всех страниц",
+                    "Готовим финальный (4-й) вариант по всем страницам для разработки"
+                ],
                 materials: [
                     { title: "Проект в коллаб", url: "https://collab.nimax.ru/projects/1323" },
                     { title: "План по посевам", url: "https://docs.google.com/spreadsheets/d/1LvddGh2hQnZedeSQcLdKUnhZGCKosgiv/edit?gid=1417143282#gid=1417143282" },
@@ -512,6 +541,12 @@
                 client: "Владислав (СМО), Анастасия (маркетолог) — контактные лица",
                 team: "Контекст — Настя Жлабицкая",
                 sites: "#",
+                context: [
+                    "Каждую неделю отправляем статусы с отчетностью из Колаба в чат",
+                    "Клиент заполняет таблицу с лидами, мы формируем статусы",
+                    "Проводим отчет за месяц и согласуем медиаплан на следующий",
+                    "Бюджеты клиент пополняет напрямую"
+                ],
                 materials: [
                     { title: "МП (Библиотека Лань & Nimax | Медиаплан)", url: "#" },
                     { title: "Отчет (Библиотека Лань & Nimax | Отчет)", url: "#" },
@@ -541,6 +576,12 @@
                 client: "Дарья Барабанова (Daria.Barabanova@bausch.com) — уходит в декрет 20-х чисел, НОВОЕ контактное лицо — Светлана Безруких (@lanabezrukih, Svetlana.Bezrukih@bausch.com)",
                 team: "SEO — Аня Поздняк + Настя Черкунова, Документы — Светлана Санкевич",
                 sites: "#",
+                context: [
+                    "Дорабатываем измененную стратегию глобально под бренд, а не под отдельный сайт",
+                    "Все работы в рамках предыдущей сметы",
+                    "Смена контактного лица: Дарья уходит в декрет, основной контакт — Светлана Безруких",
+                    "Нужно передать всю информацию новому контактному лицу"
+                ],
                 materials: [
                     { title: "Старая смета", url: "https://docs.google.com/spreadsheets/d/1IY33ascamKRy10mut63Id6Y62L5mQpSNAN4HuwP5WJw/edit?gid=1124043236#gid=1124043236" },
                     { title: "Презентация новой стратегии", url: "https://docs.google.com/presentation/d/1YJO16GEsZINENCJx-NWlDhkVsMtDjdoB7ATWGqWxa8w/edit?slide=id.p1#slide=id.p1" }
@@ -568,6 +609,12 @@
                 client: "Наталья — основное контактное лицо (коммуникация в чате Telegram)",
                 team: "Мета — Настя Колотий, Таргет ВК — Катя Белькова, Коммуникация в Telegram чате",
                 sites: "#",
+                context: [
+                    "Контекст: Ретаргетинговая компания работает хорошо — оптимизируем",
+                    "Контекст: Компания на сообщения в Директ дает большое кол-во запросов и косвенные продажи — оптимизируем, не отключаем",
+                    "Постоянно запрашиваем у клиента ОС (текст креативов в Директ) для понимания аудитории",
+                    "Встреча каждый вторник в 15:30 с Натальей, Настей Колотий и Любой"
+                ],
                 materials: [
                     { title: "Таблица со всеми лидами клиента и запросами", url: "https://docs.google.com/spreadsheets/d/1uAM88NdzSi7jqG1jvpo6V1hMuZ3w9MAm2V6omVgAd0w/edit?usp=drivesdk" },
                     { title: "Медиапланы", url: "https://docs.google.com/spreadsheets/d/1KHUGLJXsmseyYOpMrpQxkBZpGmlHxeRl5UxlEEFsJUA/edit" },
@@ -595,12 +642,10 @@
         };
 
         let currentProject = null;
-        let lubaTasksList = [];
 
         function initProjects() {
             const projectList = document.getElementById('projectList');
             
-            // Добавляем проекты
             Object.keys(projects).forEach((key, index) => {
                 const li = document.createElement('li');
                 li.className = 'project-item';
@@ -609,7 +654,6 @@
                 projectList.appendChild(li);
             });
 
-            // Событие на кнопку "Задачи для Любы"
             document.getElementById('nav-luiba').onclick = () => showLubaTasks();
             
             selectProject(Object.keys(projects)[0]);
@@ -630,19 +674,6 @@
             renderContent(project);
         }
 
-        function showLubaTasks() {
-            currentProject = null;
-            document.getElementById('projectName').textContent = '📝 Задачи для Любы';
-            document.getElementById('projectClient').textContent = 'Менеджер-замена: Люба';
-
-            document.querySelectorAll('.project-item').forEach((item) => {
-                item.classList.remove('active');
-            });
-            document.getElementById('nav-luiba').classList.add('active');
-
-            renderLubaTasks();
-        }
-
         function renderContent(project) {
             const contentBody = document.getElementById('contentBody');
             contentBody.innerHTML = '';
@@ -653,45 +684,14 @@
                 <strong>👥 Команда:</strong> ${project.team}
                 <strong>🌐 Сайты:</strong> ${project.sites}
             `;
-            
-            // Добавляем материалы если они есть
-            if (project.materials && project.materials.length > 0) {
-                const materialsSection = document.createElement('div');
-                materialsSection.style.marginTop = '12px';
-                materialsSection.style.paddingTop = '12px';
-                materialsSection.style.borderTop = '1px solid #e0e0e0';
-                
-                const materialsTitle = document.createElement('strong');
-                materialsTitle.textContent = '📎 Материалы:';
-                materialsTitle.style.display = 'block';
-                materialsTitle.style.marginBottom = '8px';
-                materialsSection.appendChild(materialsTitle);
-                
-                const materialsList = document.createElement('ul');
-                materialsList.className = 'materials-list';
-                
-                project.materials.forEach(material => {
-                    const li = document.createElement('li');
-                    const link = document.createElement('a');
-                    link.href = material.url;
-                    link.textContent = material.title;
-                    link.target = '_blank';
-                    li.appendChild(link);
-                    materialsList.appendChild(li);
-                });
-                
-                materialsSection.appendChild(materialsList);
-                infoDiv.appendChild(materialsSection);
-            }
-            
             contentBody.appendChild(infoDiv);
 
             // КОНТЕКСТ ПРОЕКТА
             if (project.context && project.context.length > 0) {
                 const contextDiv = document.createElement('div');
-                contextDiv.className = 'context-section';
+                contextDiv.className = 'section context';
                 
-                const contextTitle = document.createElement('h3');
+                const contextTitle = document.createElement('h2');
                 contextTitle.textContent = '📌 Контекст проекта';
                 contextDiv.appendChild(contextTitle);
                 
@@ -708,18 +708,45 @@
                 contentBody.appendChild(contextDiv);
             }
 
+            // МАТЕРИАЛЫ
+            if (project.materials && project.materials.length > 0) {
+                const materialsDiv = document.createElement('div');
+                materialsDiv.className = 'section';
+                materialsDiv.style.borderLeftColor = '#3498db';
+                
+                const materialsTitle = document.createElement('h2');
+                materialsTitle.textContent = '📎 Материалы';
+                materialsDiv.appendChild(materialsTitle);
+                
+                const materialsList = document.createElement('ul');
+                materialsList.className = 'materials-list';
+                
+                project.materials.forEach(material => {
+                    const li = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = material.url;
+                    link.textContent = material.title;
+                    link.target = '_blank';
+                    li.appendChild(link);
+                    materialsList.appendChild(li);
+                });
+                
+                materialsDiv.appendChild(materialsList);
+                contentBody.appendChild(materialsDiv);
+            }
+
             if (project.documents.length > 0) {
                 const section = createSection('📄 Документы', 'documents', project.documents, 'documents');
                 contentBody.appendChild(section);
             }
 
             if (project.statuses.length > 0) {
-                const section = createSection('📊 Регулярные статусы', 'statuses', project.statuses, 'statuses');
+                const section = createSection('✅ Статусы и планы', 'statuses', project.statuses, 'statuses');
                 contentBody.appendChild(section);
             }
 
             if (project.payments.length > 0) {
-                const section = createSection('💰 Оплаты к получению', 'payments', project.payments, 'payments');
+                const section = createSection('💰 Платежи', 'payments', project.payments, 'payments');
                 contentBody.appendChild(section);
             }
 
@@ -728,157 +755,32 @@
                 contentBody.appendChild(section);
             }
 
-            if (!project.documents.length && !project.statuses.length && !project.payments.length && !project.critical.length) {
-                const empty = document.createElement('div');
-                empty.className = 'section-empty';
-                empty.textContent = 'Для этого проекта нет задач';
-                contentBody.appendChild(empty);
+            // ЗАМЕТКИ ЛЮБЫ
+            const notesDiv = document.createElement('div');
+            notesDiv.className = 'section notes';
+            
+            const notesTitle = document.createElement('h2');
+            notesTitle.textContent = '📝 Заметки Любы';
+            notesDiv.appendChild(notesTitle);
+            
+            const notesTextarea = document.createElement('textarea');
+            notesTextarea.className = 'notes-textarea';
+            notesTextarea.placeholder = 'Пишите здесь обновления, пометки о выполнении задач, комментарии...';
+            notesTextarea.id = `notes-${currentProject}`;
+            
+            // Загружаем сохраненные заметки
+            const savedNotes = localStorage.getItem(`notes-${currentProject}`);
+            if (savedNotes) {
+                notesTextarea.value = savedNotes;
             }
-        }
-
-        function renderLubaTasks() {
-            const contentBody = document.getElementById('contentBody');
-            contentBody.innerHTML = '';
-
-            // Собираем все задачи для Любы из всех проектов
-            const allLubaTasks = [];
-            Object.keys(projects).forEach(projectKey => {
-                const project = projects[projectKey];
-                
-                // Документы
-                project.documents.forEach((task, index) => {
-                    if (task.forLuba) {
-                        allLubaTasks.push({
-                            project: project.name,
-                            text: task.text,
-                            status: task.status,
-                            deadline: task.deadline,
-                            type: 'documents',
-                            id: `${projectKey}-documents-${index}`
-                        });
-                    }
-                });
-
-                // Статусы
-                project.statuses.forEach((task, index) => {
-                    if (task.forLuba) {
-                        allLubaTasks.push({
-                            project: project.name,
-                            text: task.text,
-                            status: task.status,
-                            deadline: task.deadline,
-                            type: 'statuses',
-                            id: `${projectKey}-statuses-${index}`
-                        });
-                    }
-                });
-
-                // Оплаты
-                project.payments.forEach((task, index) => {
-                    if (task.forLuba) {
-                        allLubaTasks.push({
-                            project: project.name,
-                            text: task.text,
-                            status: task.status,
-                            deadline: task.deadline,
-                            type: 'payments',
-                            id: `${projectKey}-payments-${index}`
-                        });
-                    }
-                });
-
-                // Критические задачи
-                project.critical.forEach((task, index) => {
-                    if (task.forLuba) {
-                        allLubaTasks.push({
-                            project: project.name,
-                            text: task.text,
-                            status: task.status,
-                            deadline: task.deadline,
-                            type: 'critical',
-                            id: `${projectKey}-critical-${index}`
-                        });
-                    }
-                });
+            
+            // Автосохранение при изменении
+            notesTextarea.addEventListener('input', () => {
+                localStorage.setItem(`notes-${currentProject}`, notesTextarea.value);
             });
-
-            if (allLubaTasks.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'empty-state';
-                empty.innerHTML = '<p>🎉 Все критические задачи выполнены!</p>';
-                contentBody.appendChild(empty);
-                return;
-            }
-
-            // Группируем по проектам
-            const tasksByProject = {};
-            allLubaTasks.forEach(task => {
-                if (!tasksByProject[task.project]) {
-                    tasksByProject[task.project] = [];
-                }
-                tasksByProject[task.project].push(task);
-            });
-
-            // Выводим задачи по проектам
-            Object.keys(tasksByProject).forEach(projectName => {
-                const section = document.createElement('div');
-                section.className = 'section critical';
-
-                const header = document.createElement('h2');
-                header.textContent = `📌 ${projectName}`;
-                section.appendChild(header);
-
-                tasksByProject[projectName].forEach((task) => {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'task-item for-luba';
-
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.className = 'task-checkbox';
-                    checkbox.id = `luba-${task.id}`;
-
-                    checkbox.onchange = () => {
-                        taskItem.classList.toggle('completed');
-                        saveProgress();
-                    };
-
-                    const contentWrapper = document.createElement('div');
-                    contentWrapper.style.flex = '1';
-
-                    const text = document.createElement('div');
-                    text.className = 'task-text';
-                    
-                    const badge = document.createElement('span');
-                    badge.className = 'luba-badge';
-                    badge.textContent = '👤 Сделать Любе';
-                    text.appendChild(badge);
-                    
-                    const textNode = document.createElement('span');
-                    textNode.textContent = task.text;
-                    text.appendChild(textNode);
-
-                    contentWrapper.appendChild(text);
-
-                    if (task.deadline) {
-                        const deadlineBadge = document.createElement('div');
-                        deadlineBadge.className = 'deadline-badge';
-                        deadlineBadge.textContent = `⏰ Дедлайн: ${task.deadline}`;
-                        contentWrapper.appendChild(deadlineBadge);
-                    }
-
-                    taskItem.appendChild(checkbox);
-                    taskItem.appendChild(contentWrapper);
-
-                    const statusBadge = document.createElement('div');
-                    statusBadge.className = 'task-status';
-                    statusBadge.textContent = task.status;
-                    taskItem.appendChild(statusBadge);
-
-                    section.appendChild(taskItem);
-                });
-
-                contentBody.appendChild(section);
-            });
+            
+            notesDiv.appendChild(notesTextarea);
+            contentBody.appendChild(notesDiv);
         }
 
         function createSection(title, type, tasks, sectionClass) {
@@ -918,7 +820,7 @@
                     if (task.forLuba) {
                         const badge = document.createElement('span');
                         badge.className = 'luba-badge';
-                        badge.textContent = '👤 Сделать Любе';
+                        badge.textContent = '👤 Люба';
                         text.appendChild(badge);
                         
                         const textNode = document.createElement('span');
@@ -933,7 +835,7 @@
                     if (task.deadline) {
                         const deadlineBadge = document.createElement('div');
                         deadlineBadge.className = 'deadline-badge';
-                        deadlineBadge.textContent = `⏰ Дедлайн: ${task.deadline}`;
+                        deadlineBadge.textContent = `⏰ ${task.deadline}`;
                         contentWrapper.appendChild(deadlineBadge);
                     }
 
@@ -973,13 +875,6 @@
 
         initProjects();
         loadProgress();
-        
-        // Загружаем прогресс Любы при открытии её списка
-        document.addEventListener('click', (e) => {
-            if (e.target.id === 'nav-luiba') {
-                setTimeout(loadProgress, 100);
-            }
-        });
     </script>
 </body>
 </html>
